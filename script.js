@@ -108,18 +108,24 @@
      OG Meta Tags
      ═══════════════════════════════════════════ */
 
-  function setMetaTags() {
-    const m = CONFIG.meta;
-    document.title = m.title;
-    const setMeta = (attr, val, content) => {
-      const el = document.querySelector(`meta[${attr}="${val}"]`);
-      if (el) el.setAttribute('content', content);
-    };
-    setMeta('property', 'og:title', m.title);
-    setMeta('property', 'og:description', m.description);
-    setMeta('property', 'og:image', window.location.origin + '/images/og/1.jpg');
-    setMeta('name', 'description', m.description);
-  }
+ function setMetaTags() {
+  const m = CONFIG.meta;
+  document.title = m.title;
+  
+  const setMeta = (attr, val, content) => {
+    const el = document.querySelector(`meta[${attr}="${val}"]`);
+    if (el) el.setAttribute('content', content);
+  };
+   
+  const fullImgUrl = window.location.origin + window.location.pathname.replace('index.html', '') + 'images/og/1.jpg';
+
+  setMeta('property', 'og:title', m.title);
+  setMeta('property', 'og:description', m.description);
+  setMeta('property', 'og:image', fullImgUrl); // 절대 주소 사용
+  setMeta('name', 'description', m.description);
+  
+  console.log("설정된 썸네일 주소:", fullImgUrl); // 확인용
+}
 
   /* ═══════════════════════════════════════════
      Curtain
