@@ -695,6 +695,32 @@
   }
 
   /* ═══════════════════════════════════════════
+   BGM Control
+   ═══════════════════════════════════════════ */
+function initBgm() {
+  const bgm = document.getElementById('bgm');
+  const bgmBtn = document.getElementById('bgmBtn');
+  if (!bgm || !bgmBtn) return;
+
+  const playIcon = bgmBtn.querySelector('.icon-play');
+  const pauseIcon = bgmBtn.querySelector('.icon-pause');
+
+  bgmBtn.addEventListener('click', () => {
+    if (bgm.paused) {
+      bgm.play();
+      bgmBtn.classList.add('playing');
+      playIcon.style.display = 'none';
+      pauseIcon.style.display = 'block';
+    } else {
+      bgm.pause();
+      bgmBtn.classList.remove('playing');
+      playIcon.style.display = 'block';
+      pauseIcon.style.display = 'none';
+    }
+  });
+}
+
+  /* ═══════════════════════════════════════════
      Init
      ═══════════════════════════════════════════ */
 
@@ -702,6 +728,7 @@
     setMetaTags();
     initCurtain();
     initHero();
+    initBgm(); // BGM 초기화 추가
     initCountdown();
     initGreeting();
     initCalendar();
