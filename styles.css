@@ -823,14 +823,6 @@ a {
   margin-top: 0.375rem; /* 간격 미세 조정 */
 }
 
-.location__rmk {
-  font-size: 0.9375rem;
-  font-weight: 300;
-  color: var(--color-text);
-  opacity: 0.85;
-  margin-top: 0.375rem;
-}
-
 .location__copy {
   margin-bottom: var(--spacing-lg);
 }
@@ -885,12 +877,15 @@ a {
 }
 
 .location__content {
+  display: flex;
+  align-items: center;   /* 세로 가운데 정렬 */
+  gap: 0.5rem;           /* 텍스트와 버튼 사이 간격 */
   font-size: 0.9375rem;
   font-weight: 300;
-  line-height: 1.5; /* 지하철/버스와 동일한 줄 간격 */
   color: var(--color-text);
   opacity: 0.85;
   white-space: pre-line;
+  line-height: normal;   /* 버튼에 불필요한 줄 간격 제거 */
 }
 
 /* 주소 복사 미니 버튼 */
@@ -905,10 +900,10 @@ a {
   color: var(--color-text-light);
   background: var(--color-bg-card);
   transition: all 0.2s;
-  height: 18px;
   margin-left: 0.375rem; /* 주소 바로 옆에 붙도록 마진 조정 */
   vertical-align: middle; /* 텍스트 베이스라인에 맞춤 */
-  line-height: 1;
+  height: auto;          /* 고정 높이 제거 */
+  line-height: 1.2;      /* 텍스트 크기와 균형 맞춤 */
 }
 
 .btn--copy-inline:hover {

@@ -575,23 +575,9 @@
   function initLocation() {
     const w = CONFIG.wedding;
     // 기존에 있던 #locationVenue, #locationHall은 상단 캘린더 섹션으로 옮겨졌으므로 안전하게 처리합니다.
-    const venueEl = $('#locationVenue');
-    const hallEl = $('#locationHall');
-    if (venueEl) venueEl.textContent = w.venue;
-    if (hallEl) hallEl.textContent = w.hall;
     
     const addressEl = $('#locationAddress');
     if (addressEl) addressEl.textContent = w.address;
-
-    const rmkEl = $('#locationRmk');
-    if (rmkEl) {
-      if (w.rmk) {
-        rmkEl.textContent = w.rmk;
-        rmkEl.style.display = 'block';
-      } else {
-        rmkEl.style.display = 'none';
-      }
-    }
 
     // Google Maps Embed (No API key required for simple search view)
     const mapFrame = $('#locationMapFrame');
