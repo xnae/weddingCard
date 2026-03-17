@@ -338,7 +338,7 @@
     const weddingDay = dt.getDate();
 
     const w = CONFIG.wedding;
-    const formattedDate = w.date.replace(/-/g, '. '); // 2026. 09. 19. 형식
+    const formattedDate = w.date.replace(/-/g, '/ '); // 2026. 09. 19. 형식
     const day = ['일', '월', '화', '수', '목', '금', '토'][dt.getDay()];
     const hours = dt.getHours();
     const minutes = dt.getMinutes();
@@ -346,7 +346,7 @@
     const h12 = hours % 12 || 12;
     const timeStr = `${period} ${h12}시${minutes > 0 ? ` ${minutes}분` : ''}`;
 
-    $('#calendarInfoDate').textContent = `${formattedDate}. ${day}요일 ${timeStr}`;
+    $('#calendarInfoDate').textContent = `${formattedDate} (${day}) ${timeStr}`;
     $('#calendarInfoVenue').textContent = w.venue;
     $('#calendarInfoHall').textContent = w.hall;
 
