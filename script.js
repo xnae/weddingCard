@@ -17,15 +17,15 @@
     const d = new Date(`${dateStr}T${timeStr}:00`);
     const days = ['일', '월', '화', '수', '목', '금', '토'];
     const year = d.getFullYear();
-    const month = d.getMonth() + 1;
+    const month = String(d.getMonth() + 1).padStart(2, '0'); // 두 자리로 변환
     const date = d.getDate();
     const day = days[d.getDay()];
     const hours = d.getHours();
     const minutes = d.getMinutes();
-    const period = hours < 12 ? '오전' : '오후';
+    const period = hours < 12 ? 'AM' : 'PM';
     const h12 = hours % 12 || 12;
-    const minuteStr = minutes > 0 ? ` ${minutes}분` : '';
-    return `${year}년 ${month}월 ${date}일 ${day}요일 ${period} ${h12}시${minuteStr}`;
+    const minuteStr = minutes > 0 ? ` ${minutes}` : '';
+    return `${year}/${month}/${date}(${day}) ${period} ${h12} :${minuteStr}`;
   }
 
   function getWeddingDateTime() {
