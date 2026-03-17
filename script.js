@@ -575,7 +575,7 @@
   function initLocation() {
     const w = CONFIG.wedding;
     // 기존에 있던 #locationVenue, #locationHall은 상단 캘린더 섹션으로 옮겨졌으므로 안전하게 처리합니다.
-    
+
     const addressEl = $('#locationAddress');
     if (addressEl) addressEl.textContent = w.address;
 
@@ -705,7 +705,9 @@
         });
       },
       {
-        threshold: 0.1, // 10%만 보여도 작동 (기존 0.15에서 하향)
+        // threshold: 0.1, // 10%만 보여도 작동 (기존 0.15에서 하향)
+        threshold: 0, // 단순화
+
         rootMargin: '0px 0px -50px 0px' // 화면 하단보다 조금 일찍 시작
       }
     );
@@ -714,21 +716,25 @@
     $$('.animate-item').forEach((el) => observer.observe(el));
 
     // Re-observe after dynamic content is added (MutationObserver)
-    const mutObs = new MutationObserver((mutations) => {
-      mutations.forEach((m) => {
-        m.addedNodes.forEach((node) => {
-          if (node.nodeType !== 1) return;
-          if (node.classList && node.classList.contains('animate-item')) {
-            observer.observe(node);
-          }
-          if (node.querySelectorAll) {
-            node.querySelectorAll('.animate-item').forEach((el) => observer.observe(el));
-          }
-        });
-      });
-    });
+    // const mutObs = new MutationObserver((mutations) => {
+    //   mutations.forEach((m) => {
+    //     m.addedNodes.forEach((node) => {
+    //       if (node.nodeType !== 1) return;
+    //       if (node.classList && node.classList.contains('animate-item')) {
+    //         observer.observe(node);
+    //       }
+    //       if (node.querySelectorAll) {
+    //         node.querySelectorAll('.animate-item').forEach((el) => observer.observe(el));
+    //       }
+    //     });
+    //   });
+    // });
 
-    mutObs.observe(document.body, { childList: true, subtree: true });
+    // mutObs.observe(document.body, { childList: true, subtree: true });
+    // 동적 콘텐츠 추가 시 수동 호출할 수 있도록 헬퍼 제공
+    window.observeNewItems = function(container) {
+      container.querySelectorAll('.animate-item').forEach((el) => observer.observe(el));
+    };
   }
 
   /* ═══════════════════════════════════════════
