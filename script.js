@@ -252,8 +252,8 @@
   function initHero() {
     $('#heroPhoto').src = 'images/hero/1.jpg';
     $('#heroNames').textContent = `${CONFIG.groom.name}  ·  ${CONFIG.bride.name}`;
-    $('#heroDate').textContent = formatDate(CONFIG.wedding.date, CONFIG.wedding.time);
-    $('#heroVenue').textContent = CONFIG.wedding.venue;
+    // $('#heroDate').textContent = formatDate(CONFIG.wedding.date, CONFIG.wedding.time);
+    // $('#heroVenue').textContent = CONFIG.wedding.venue;
   }
 
   /* ═══════════════════════════════════════════
@@ -316,13 +316,11 @@
     const parentsHTML = `
       <div class="parent-row">
         ${parentLine(g.father, g.mother, g.fatherDeceased, g.motherDeceased)}
-        <span class="parent-dot">●</span>
-        의 아들 <span class="child-name">${g.name}</span>
+        의 장남 <span class="child-name">${g.name}</span>
       </div>
       <div class="parent-row">
         ${parentLine(b.father, b.mother, b.fatherDeceased, b.motherDeceased)}
-        <span class="parent-dot">●</span>
-        의 딸 <span class="child-name">${b.name}</span>
+        의 장녀 <span class="child-name">${b.name}</span>
       </div>
     `;
 
@@ -338,6 +336,19 @@
     const year = dt.getFullYear();
     const month = dt.getMonth();
     const weddingDay = dt.getDate();
+
+    const w = CONFIG.wedding;
+    const formattedDate = w.date.replace(/-/g, '. '); // 2026. 09. 19. 형식
+    const day = ['일', '월', '화', '수', '목', '금', '토'][dt.getDay()];
+    const hours = dt.getHours();
+    const minutes = dt.getMinutes();
+    const period = hours < 12 ? '오전' : '오후';
+    const h12 = hours % 12 || 12;
+    const timeStr = `${period} ${h12}시${minutes > 0 ? ` ${minutes}분` : ''}`;
+
+    $('#calendarInfoDate').textContent = `${formattedDate}. ${day}요일 ${timeStr}`;
+    $('#calendarInfoVenue').textContent = w.venue;
+    $('#calendarInfoHall').textContent = w.hall;
 
     const grid = $('#calendarGrid');
 
@@ -563,13 +574,41 @@
 
   function initLocation() {
     const w = CONFIG.wedding;
-    $('#locationVenue').textContent = w.venue;
-    $('#locationHall').textContent = w.hall;
-    $('#locationAddress').textContent = w.address;
-    $('#locationTel').textContent = w.tel ? `Tel. ${w.tel}` : '';
-    $('#locationMapImg').src = 'images/location/1.jpg';
+    // 기존에 있던 #locationVenue, #locationHall은 상단 캘린더 섹션으로 옮겨졌으므로 안전하게 처리합니다.
+    const venueEl = $('#locationVenue');
+    const hallEl = $('#locationHall');
+    if (venueEl) venueEl.textContent = w.venue;
+    if (hallEl) hallEl.textContent = w.hall;
+    
+    const addressEl = $('#locationAddress');
+    if (addressEl) addressEl.textContent = w.address;
+
+    const rmkEl = $('#locationRmk');
+    if (rmkEl) {
+      if (w.rmk) {
+        rmkEl.textContent = w.rmk;
+        rmkEl.style.display = 'block';
+      } else {
+        rmkEl.style.display = 'none';
+      }
+    }
+
+    // Google Maps Embed (No API key required for simple search view)
+    const mapFrame = $('#locationMapFrame');
+    if (mapFrame) {
+      const encodedAddr = encodeURIComponent(`${w.venue} ${w.address}`);
+      mapFrame.src = `https://maps.google.com/maps?q=${encodedAddr}&t=&z=16&ie=UTF8&iwloc=&output=embed`;
+    }
+
     $('#kakaoMapBtn').href = w.mapLinks.kakao || '#';
     $('#naverMapBtn').href = w.mapLinks.naver || '#';
+
+    // Transport info
+    if (w.transport) {
+      $('#subwayInfo').textContent = w.transport.subway;
+      $('#busInfo').textContent = w.transport.bus;
+      $('#carInfo').textContent = w.transport.car;
+    }
 
     $('#copyAddressBtn').addEventListener('click', () => {
       copyToClipboard(w.address, '주소가 복사되었습니다');
@@ -618,6 +657,11 @@
   }
 
   function initAccounts() {
+    const rmkEl = $('#accountRmk');
+    if (rmkEl && CONFIG.accounts.rmk) {
+      rmkEl.textContent = CONFIG.accounts.rmk;
+    }
+    
     renderAccounts(CONFIG.accounts.groom, 'groomAccountList');
     renderAccounts(CONFIG.accounts.bride, 'brideAccountList');
 
@@ -669,13 +713,14 @@
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             entry.target.classList.add('is-visible');
+            // 한번 나타나면 계속 유지하고 싶다면 unobserve를 그대로 둡니다.
             observer.unobserve(entry.target);
           }
         });
       },
       {
-        threshold: 0.15,
-        rootMargin: '0px 0px -40px 0px'
+        threshold: 0.1, // 10%만 보여도 작동 (기존 0.15에서 하향)
+        rootMargin: '0px 0px -50px 0px' // 화면 하단보다 조금 일찍 시작
       }
     );
 
@@ -749,18 +794,10 @@ function initBgm() {
     initFooter();
     initScrollAnimations();
 
-    // Set story text immediately (photos load async)
-    $('#storyTitle').textContent = CONFIG.story.title;
-    $('#storyContent').textContent = CONFIG.story.content;
+    // Auto-detect gallery images
+    const galleryImages = await loadImagesFromFolder('gallery');
 
-    // Auto-detect story and gallery images in parallel
-    const [storyImages, galleryImages] = await Promise.all([
-      loadImagesFromFolder('story'),
-      loadImagesFromFolder('gallery')
-    ]);
-
-    // Render sections with discovered images
-    initStory(storyImages);
+    // Render gallery section
     initGallery(galleryImages);
   }
 
@@ -769,4 +806,22 @@ function initBgm() {
   } else {
     init();
   }
+
+  document.addEventListener('visibilitychange', () => {
+    const bgm = document.getElementById('bgm');
+    const bgmBtn = document.getElementById('bgmBtn');
+    if (!bgm || !bgmBtn) return;
+
+    const playIcon = bgmBtn.querySelector('.icon-play');
+    const pauseIcon = bgmBtn.querySelector('.icon-pause');
+
+    if (document.hidden) {
+      if (!bgm.paused) {
+        bgm.pause();
+        bgmBtn.classList.remove('playing');
+        playIcon.style.display = 'block';
+        pauseIcon.style.display = 'none';
+      }
+    }
+  });
 })();

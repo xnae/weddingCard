@@ -71,7 +71,6 @@
         <p class="hero__label animate-item" data-animate="fade-down">Wedding Invitation</p>
         <h1 class="hero__names animate-item" data-animate="fade-up" id="heroNames"></h1>
         <div class="hero__divider animate-item" data-animate="fade-in"></div>
-        <p class="hero__date animate-item" data-animate="fade-up" id="heroDate"></p>
         <p class="hero__venue animate-item" data-animate="fade-up" id="heroVenue"></p>
       </div>
 
@@ -105,17 +104,24 @@
     <!-- ─── Greeting Section ─── -->
     <section class="section greeting" id="greeting">
       <div class="section__inner">
-        <div class="ornament animate-item" data-animate="fade-in">&#10047;</div>
-        <h2 class="section__title animate-item" data-animate="fade-up" id="greetingTitle"></h2>
-        <p class="greeting__text animate-item" data-animate="fade-up" id="greetingContent"></p>
-        <div class="greeting__parents animate-item" data-animate="fade-up" id="greetingParents"></div>
+        <div class="ornament animate-item" data-animate="fade-in" style="transition-delay: 0.1s;">&#10047;</div>
+        <h2 class="section__title animate-item" data-animate="fade-up" id="greetingTitle" style="transition-delay: 0.2s;"></h2>
+        <p class="greeting__text animate-item" data-animate="fade-up" id="greetingContent" style="transition-delay: 0.4s;"></p>
+        <div class="greeting__parents animate-item" data-animate="fade-up" id="greetingParents" style="transition-delay: 0.6s;"></div>
       </div>
     </section>
 
     <!-- ─── Calendar Section ─── -->
     <section class="section calendar-section" id="calendarSection">
       <div class="section__inner">
-        <h2 class="section__title animate-item" data-animate="fade-up">예식 일시</h2>
+        <h2 class="section__title animate-item" data-animate="fade-up">예식 일시<span class="title-sep"></span>장소</h2>
+        <div class="calendar__info animate-item" data-animate="fade-up">
+          <p class="calendar__info-date" id="calendarInfoDate"></p>
+          <p class="calendar__info-venue">
+            <span id="calendarInfoVenue"></span>
+            <span class="calendar__info-hall" id="calendarInfoHall"></span>
+          </p>
+        </div>
         <div class="calendar animate-item" data-animate="scale-in" id="calendarGrid"></div>
         <div class="calendar-actions animate-item" data-animate="fade-up">
           <a class="btn btn--outline" id="googleCalBtn" href="#" target="_blank" rel="noopener">
@@ -127,15 +133,6 @@
             Apple 캘린더
           </button>
         </div>
-      </div>
-    </section>
-
-    <!-- ─── Our Story Section ─── -->
-    <section class="section story" id="story">
-      <div class="section__inner">
-        <h2 class="section__title animate-item" data-animate="fade-up" id="storyTitle"></h2>
-        <p class="story__text animate-item" data-animate="fade-up" id="storyContent"></p>
-        <div class="story__photos" id="storyPhotos"></div>
       </div>
     </section>
 
@@ -151,22 +148,46 @@
     <section class="section location" id="location">
       <div class="section__inner">
         <h2 class="section__title animate-item" data-animate="fade-up">오시는 길</h2>
-        <div class="location__info animate-item" data-animate="fade-up">
-          <p class="location__venue" id="locationVenue"></p>
-          <p class="location__hall" id="locationHall"></p>
-          <p class="location__address" id="locationAddress"></p>
-          <p class="location__tel" id="locationTel"></p>
-        </div>
-        <button class="btn btn--text location__copy animate-item" data-animate="fade-up" id="copyAddressBtn">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
-          주소 복사
-        </button>
+        
         <div class="location__map animate-item" data-animate="scale-in">
-          <img class="location__map-img" id="locationMapImg" src="" alt="약도" loading="lazy">
+          <iframe 
+            id="locationMapFrame"
+            class="location__map-frame" 
+            width="100%" 
+            height="100%" 
+            frameborder="0" 
+            style="border:0;" 
+            allowfullscreen="" 
+            loading="lazy">
+          </iframe>
         </div>
+
         <div class="location__links animate-item" data-animate="fade-up">
           <a class="btn btn--kakao" id="kakaoMapBtn" href="#" target="_blank" rel="noopener">카카오맵</a>
           <a class="btn btn--naver" id="naverMapBtn" href="#" target="_blank" rel="noopener">네이버지도</a>
+        </div>
+
+        <div class="location__list animate-item" data-animate="fade-up">
+          <!-- 주소 -->
+          <div class="location__item">
+            <h3 class="location__label">주소</h3>
+            <p class="location__content"><span id="locationAddress"></span><button class="btn--copy-inline" id="copyAddressBtn">복사</button><span id="locationRmk" style="display: none; font-size: 0.85em; opacity: 0.8; margin-top: 0.125rem;"></span></p>
+          </div>
+          <!-- 지하철 -->
+          <div class="location__item">
+            <h3 class="location__label">지하철</h3>
+            <p class="location__content" id="subwayInfo"></p>
+          </div>
+          <!-- 버스 -->
+          <div class="location__item">
+            <h3 class="location__label">버스</h3>
+            <p class="location__content" id="busInfo"></p>
+          </div>
+          <!-- 자가용 -->
+          <div class="location__item">
+            <h3 class="location__label">자가용 (2시간 무료)</h3>
+            <p class="location__content" id="carInfo"></p>
+          </div>
         </div>
       </div>
     </section>
@@ -175,7 +196,7 @@
     <section class="section account" id="account">
       <div class="section__inner">
         <h2 class="section__title animate-item" data-animate="fade-up">마음 전하실 곳</h2>
-        <p class="account__desc animate-item" data-animate="fade-up">축하의 마음을 담아 축의금을 전달해 보세요.</p>
+        <p class="account__desc animate-item" data-animate="fade-up" id="accountRmk"></p>
 
         <!-- Groom Accounts -->
         <div class="accordion animate-item" data-animate="fade-up">
