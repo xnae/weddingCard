@@ -892,23 +892,24 @@ a {
 .btn--copy-inline {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  font-size: 0.6875rem;
-  padding: 0 0.5rem;
+  padding: 0.5rem;
+  font-size: 0.75rem;
   border: 1px solid var(--color-border);
   border-radius: 4px;
-  color: var(--color-text-light);
+  color: var(--color-accent-dark);
   background: var(--color-bg-card);
   transition: all 0.2s;
   margin-left: 0.375rem; /* 주소 바로 옆에 붙도록 마진 조정 */
   vertical-align: middle; /* 텍스트 베이스라인에 맞춤 */
   height: auto;          /* 고정 높이 제거 */
   line-height: 1.2;      /* 텍스트 크기와 균형 맞춤 */
+  justify-content: center;
 }
 
 .btn--copy-inline:hover {
+  background: var(--color-accent);
+  color: var(--color-white);
   border-color: var(--color-accent);
-  color: var(--color-accent);
 }
 
 /* ═══════════════════════════════════════════
@@ -1031,13 +1032,13 @@ a {
   display: flex;
   align-items: center;
   gap: 0.25rem;
-  padding: 0.5rem 0.75rem;
+  padding: 0.5rem;
   font-size: 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
   font-weight: 300;
   color: var(--color-accent-dark);
-  border: 1px solid var(--color-accent-light);
-  border-radius: 100px;
-  transition: var(--transition);
+   transition: var(--transition);
   white-space: nowrap;
 }
 
