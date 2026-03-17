@@ -71,6 +71,7 @@
         <p class="hero__label animate-item" data-animate="fade-down">Wedding Invitation</p>
         <h1 class="hero__names animate-item" data-animate="fade-up" id="heroNames"></h1>
         <div class="hero__divider animate-item" data-animate="fade-in"></div>
+        <p class="hero__date animate-item" data-animate="fade-up" id="heroDate"></p>
         <p class="hero__venue animate-item" data-animate="fade-up" id="heroVenue"></p>
       </div>
 
@@ -136,6 +137,15 @@
       </div>
     </section>
 
+    <!-- ─── Our Story Section ─── -->
+    <section class="section story" id="story">
+      <div class="section__inner">
+        <h2 class="section__title animate-item" data-animate="fade-up" id="storyTitle"></h2>
+        <p class="story__text animate-item" data-animate="fade-up" id="storyContent"></p>
+        <div class="story__photos" id="storyPhotos"></div>
+      </div>
+    </section>
+
     <!-- ─── Gallery Section ─── -->
     <section class="section gallery" id="gallery">
       <div class="section__inner">
@@ -171,7 +181,13 @@
           <!-- 주소 -->
           <div class="location__item">
             <h3 class="location__label">주소</h3>
-            <p class="location__content"><span id="locationAddress"></span><button class="btn--copy-inline" id="copyAddressBtn">복사</button><span id="locationRmk" style="display: none; font-size: 0.85em; opacity: 0.8; margin-top: 0.125rem;"></span></p>
+            <div class="location__content">
+              <p class="location__venue-name" id="locationVenueName"></p>
+              <span id="locationAddress"></span>
+              <button class="btn--copy-inline" id="copyAddressBtn">복사</button>
+              <p class="location__sub" id="locationTel"></p>
+              <p class="location__sub" id="locationRmk"></p>
+            </div>
           </div>
           <!-- 지하철 -->
           <div class="location__item">
@@ -185,7 +201,7 @@
           </div>
           <!-- 자가용 -->
           <div class="location__item">
-            <h3 class="location__label">자가용 (2시간 무료)</h3>
+            <h3 class="location__label">주차 안내</h3>
             <p class="location__content" id="carInfo"></p>
           </div>
         </div>
