@@ -715,26 +715,27 @@
     // Observe initial static items
     $$('.animate-item').forEach((el) => observer.observe(el));
 
-    // Re-observe after dynamic content is added (MutationObserver)
-    // const mutObs = new MutationObserver((mutations) => {
-    //   mutations.forEach((m) => {
-    //     m.addedNodes.forEach((node) => {
-    //       if (node.nodeType !== 1) return;
-    //       if (node.classList && node.classList.contains('animate-item')) {
-    //         observer.observe(node);
-    //       }
-    //       if (node.querySelectorAll) {
-    //         node.querySelectorAll('.animate-item').forEach((el) => observer.observe(el));
-    //       }
-    //     });
-    //   });
-    // });
-
-    // mutObs.observe(document.body, { childList: true, subtree: true });
-    // 동적 콘텐츠 추가 시 수동 호출할 수 있도록 헬퍼 제공
-    window.observeNewItems = function(container) {
-      container.querySelectorAll('.animate-item').forEach((el) => observer.observe(el));
-    };
+    //Re-observe after dynamic content is added (MutationObserver)
+    const mutObs = new MutationObserver((mutations) => {
+      mutations.forEach((m) => {
+        m.addedNodes.forEach((node) => {
+          if (node.nodeType !== 1) return;
+          if (node.classList && node.classList.contains('animate-item')) {
+            observer.observe(node);
+          }
+          if (node.querySelectorAll) {
+            node.querySelectorAll('.animate-item').forEach((el) => observer.observe(el));
+          }
+        });
+      });
+    });
+    
+     mutObs.observe(document.body, { childList: true, subtree: true });
+    
+     // 동적 콘텐츠 추가 시 수동 호출할 수 있도록 헬퍼 제공
+    // window.observeNewItems = function(container) {
+    //   container.querySelectorAll('.animate-item').forEach((el) => observer.observe(el));
+    // };
   }
 
   /* ═══════════════════════════════════════════
