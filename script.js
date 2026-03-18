@@ -346,7 +346,7 @@
     const h12 = hours % 12 || 12;
     const timeStr = `${period} ${h12} :${minutes > 0 ? ` ${minutes}` : ''}`;
 
-    $('#calendarInfoDate').textContent = `${formattedDate} (${day}) ${timeStr}`;
+    $('#calendarInfoDate').textContent = `${formattedDate}(${day}) ${timeStr}`;
     $('#calendarInfoVenue').textContent = w.venue;
     $('#calendarInfoHall').textContent = w.hall;
 
