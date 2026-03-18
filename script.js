@@ -643,11 +643,6 @@
   }
 
   function initAccounts() {
-    const rmkEl = $('#accountRmk');
-    if (rmkEl && CONFIG.accounts.rmk) {
-      rmkEl.textContent = CONFIG.accounts.rmk;
-    }
-    
     renderAccounts(CONFIG.accounts.groom, 'groomAccountList');
     renderAccounts(CONFIG.accounts.bride, 'brideAccountList');
 

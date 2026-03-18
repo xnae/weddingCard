@@ -928,10 +928,6 @@ a {
   white-space: pre-line;
 }
 
-#accountRmk {
-  margin-bottom: var(--spacing-lg);
-}
-
 /* ─── Accordion ─── */
 .accordion {
   max-width: 400px;
