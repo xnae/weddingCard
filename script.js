@@ -32,6 +32,27 @@
     return new Date(`${CONFIG.wedding.date}T${CONFIG.wedding.time}:00`);
   }
 
+  // Kakao Maps Script Loader
+  function loadKakaoMapScript(callback) {
+    const w = CONFIG.wedding;
+    if (!w.kakaoMapKey || w.kakaoMapKey === "YOUR_KAKAO_JAVASCRIPT_KEY") {
+      console.warn("Kakao Map API key is not set. Please check config.js.");
+      return;
+    }
+    
+    if (typeof kakao !== 'undefined' && kakao.maps) {
+      callback();
+      return;
+    }
+    
+    const script = document.createElement('script');
+    script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${w.kakaoMapKey}&autoload=false&libraries=services`;
+    script.onload = () => {
+      kakao.maps.load(callback);
+    };
+    document.head.appendChild(script);
+  }
+
   /* ═══════════════════════════════════════════
      Image Auto-Detection
      ═══════════════════════════════════════════ */
@@ -574,16 +595,42 @@
 
   function initLocation() {
     const w = CONFIG.wedding;
-    // 기존에 있던 #locationVenue, #locationHall은 상단 캘린더 섹션으로 옮겨졌으므로 안전하게 처리합니다.
 
     const addressEl = $('#locationAddress');
     if (addressEl) addressEl.textContent = w.address;
 
-    // Google Maps Embed (No API key required for simple search view)
-    const mapFrame = $('#locationMapFrame');
-    if (mapFrame) {
-      const encodedAddr = encodeURIComponent(`${w.venue} ${w.address}`);
-      mapFrame.src = `https://maps.google.com/maps?q=${encodedAddr}&t=&z=16&ie=UTF8&iwloc=&output=embed`;
+    // Kakao Maps
+    const mapContainer = $('#kakaoMap');
+    if (mapContainer) {
+      loadKakaoMapScript(() => {
+        const options = {
+          center: new kakao.maps.LatLng(w.lat, w.lng),
+          level: 3
+        };
+        const map = new kakao.maps.Map(mapContainer, options);
+        
+        // Marker
+        const markerPosition = new kakao.maps.LatLng(w.lat, w.lng);
+        const marker = new kakao.maps.Marker({
+          position: markerPosition
+        });
+        marker.setMap(map);
+
+        // Marker Title (Custom Overlay)
+        const content = `<div style="padding:5px 10px; background:#fff; border:1px solid #ccc; border-radius:15px; font-size:12px; font-weight:bold; color:#333; box-shadow: 0 2px 5px rgba(0,0,0,0.1); white-space: nowrap;">${w.venue}</div>`;
+        const customOverlay = new kakao.maps.CustomOverlay({
+            position: markerPosition,
+            content: content,
+            yAnchor: 2.6
+        });
+        customOverlay.setMap(map);
+        
+        // Map Controls
+        const mapTypeControl = new kakao.maps.MapTypeControl();
+        map.addControl(mapTypeControl, kakao.maps.ControlPosition.TOPRIGHT);
+        const zoomControl = new kakao.maps.ZoomControl();
+        map.addControl(zoomControl, kakao.maps.ControlPosition.RIGHT);
+      });
     }
 
     $('#kakaoMapBtn').href = w.mapLinks.kakao || '#';
