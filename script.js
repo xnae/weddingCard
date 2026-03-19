@@ -32,27 +32,6 @@
     return new Date(`${CONFIG.wedding.date}T${CONFIG.wedding.time}:00`);
   }
 
-  // Kakao Maps Script Loader
-  function loadKakaoMapScript(callback) {
-    const w = CONFIG.wedding;
-    if (!w.kakaoMapKey || w.kakaoMapKey === "YOUR_KAKAO_JAVASCRIPT_KEY") {
-      console.warn("Kakao Map API key is not set. Please check config.js.");
-      return;
-    }
-    
-    if (typeof kakao !== 'undefined' && kakao.maps) {
-      callback();
-      return;
-    }
-    
-    const script = document.createElement('script');
-    script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${w.kakaoMapKey}&autoload=false&libraries=services`;
-    script.onload = () => {
-      kakao.maps.load(callback);
-    };
-    document.head.appendChild(script);
-  }
-
   /* ═══════════════════════════════════════════
      Image Auto-Detection
      ═══════════════════════════════════════════ */
@@ -599,38 +578,59 @@
     const addressEl = $('#locationAddress');
     if (addressEl) addressEl.textContent = w.address;
 
-    // Kakao Maps
-    const mapContainer = $('#kakaoMap');
-    if (mapContainer) {
-      loadKakaoMapScript(() => {
+    // Kakao Maps 가이드 스타일의 초기화
+    const container = document.getElementById('kakaoMap');
+    if (container && typeof kakao !== 'undefined') {
+        const defaultCoords = new kakao.maps.LatLng(w.lat, w.lng);
         const options = {
-          center: new kakao.maps.LatLng(w.lat, w.lng),
+          center: defaultCoords,
           level: 3
         };
-        const map = new kakao.maps.Map(mapContainer, options);
+        const map = new kakao.maps.Map(container, options);
         
-        // Marker
-        const markerPosition = new kakao.maps.LatLng(w.lat, w.lng);
+        // 마커를 미리 생성합니다 (검색 실패 시에도 기본 좌표에 표시)
         const marker = new kakao.maps.Marker({
-          position: markerPosition
+            position: defaultCoords,
+            map: map
         });
-        marker.setMap(map);
 
-        // Marker Title (Custom Overlay)
+        // 이름표(커스텀 오버레이) 생성
         const content = `<div style="padding:5px 10px; background:#fff; border:1px solid #ccc; border-radius:15px; font-size:12px; font-weight:bold; color:#333; box-shadow: 0 2px 5px rgba(0,0,0,0.1); white-space: nowrap;">${w.venue}</div>`;
         const customOverlay = new kakao.maps.CustomOverlay({
-            position: markerPosition,
+            position: defaultCoords,
             content: content,
             yAnchor: 2.6
         });
         customOverlay.setMap(map);
-        
-        // Map Controls
-        const mapTypeControl = new kakao.maps.MapTypeControl();
-        map.addControl(mapTypeControl, kakao.maps.ControlPosition.TOPRIGHT);
-        const zoomControl = new kakao.maps.ZoomControl();
-        map.addControl(zoomControl, kakao.maps.ControlPosition.RIGHT);
-      });
+
+        // 주소-좌표 변환 객체를 생성합니다
+        const geocoder = new kakao.maps.services.Geocoder();
+
+        // 주소로 좌표를 검색합니다
+        geocoder.addressSearch(w.address, function(result, status) {
+            if (status === kakao.maps.services.Status.OK) {
+                const coords = new kakao.maps.LatLng(result[0].y, result[0].x);
+
+                // 검색된 위치로 마커와 이름표 이동
+                marker.setPosition(coords);
+                customOverlay.setPosition(coords);
+
+                // 지도의 중심을 결과값으로 받은 위치로 이동시킵니다
+                map.setCenter(coords);
+
+                // 지도가 가끔 깨지는 현상 방지용 정렬 코드
+                setTimeout(() => {
+                  map.relayout();
+                  map.setCenter(coords);
+                }, 500);
+            } else {
+                console.warn('주소 검색에 실패하여 기본 좌표를 사용합니다: ' + status);
+            }
+        });
+
+        // 지도 타입 컨트롤(지도/스카이뷰)과 줌 컨트롤 추가
+        map.addControl(new kakao.maps.MapTypeControl(), kakao.maps.ControlPosition.TOPRIGHT);
+        map.addControl(new kakao.maps.ZoomControl(), kakao.maps.ControlPosition.RIGHT);
     }
 
     $('#kakaoMapBtn').href = w.mapLinks.kakao || '#';
