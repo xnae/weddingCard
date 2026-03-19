@@ -32,41 +32,60 @@
     return new Date(`${CONFIG.wedding.date}T${CONFIG.wedding.time}:00`);
   }
 
+  // Kakao Maps Script Loader
+  function loadKakaoMapScript(callback) {
+    const w = CONFIG.wedding;
+    if (!w.kakaoMapKey || w.kakaoMapKey === "YOUR_KAKAO_JAVASCRIPT_KEY") {
+      console.warn("Kakao Map API key is not set. Please check config.js.");
+      return;
+    }
+    
+    if (typeof kakao !== 'undefined' && kakao.maps) {
+      callback();
+      return;
+    }
+    
+    const script = document.createElement('script');
+    script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${w.kakaoMapKey}&autoload=false&libraries=services`;
+    script.onload = () => {
+      kakao.maps.load(callback);
+    };
+    document.head.appendChild(script);
+  }
+
   /* ═══════════════════════════════════════════
      Image Auto-Detection
      ═══════════════════════════════════════════ */
 
-  async function loadImagesFromFolder(folder, maxAttempts = 50) {
-    const images = [];
-    const batchSize = 10; // 한 번에 10장씩 확인
-    
-    for (let start = 1; start <= maxAttempts; start += batchSize) {
-        const promises = [];
-        for (let i = start; i < start + batchSize && i <= maxAttempts; i++) {
-            const path = `images/${folder}/${i}.jpg`;
-            const p = new Promise(res => {
-                const img = new Image();
-                img.onload = () => res({ id: i, url: path });
-                img.onerror = () => res(null);
-                img.src = path;
-            });
-            promises.push(p);
+  function loadImagesFromFolder(folder, maxAttempts = 50) {
+    return new Promise(resolve => {
+        const images = [];
+        let current = 1;
+        let consecutiveFails = 0;
+
+        function tryNext() {
+            if (current > maxAttempts || consecutiveFails >= 3) {
+                resolve(images);
+                return;
+            }
+            const img = new Image();
+            const path = `images/${folder}/${current}.jpg`;
+            img.onload = function() {
+                images.push(path);
+                consecutiveFails = 0;
+                current++;
+                tryNext();
+            };
+            img.onerror = function() {
+                consecutiveFails++;
+                current++;
+                tryNext();
+            };
+            img.src = path;
         }
-        
-        const results = await Promise.all(promises);
-        const validInBatch = results
-            .filter(res => res !== null)
-            .sort((a, b) => a.id - b.id);
-        
-        if (validInBatch.length === 0) break; // 이번 묶음에 사진이 하나도 없으면 종료
-        
-        images.push(...validInBatch.map(res => res.url));
-        
-        // 묶음 중 중간에 빈 번호가 있으면(예: 7번까지 있고 8,9,10번이 실패) 종료
-        if (validInBatch.length < batchSize) break;
-    }
-    
-    return images;
+
+        tryNext();
+    });
   }
 
   /* ═══════════════════════════════════════════
@@ -581,9 +600,9 @@
     if (addressEl) addressEl.textContent = w.address;
 
     const container = document.getElementById('kakaoMap');
-    if (container && typeof kakao !== 'undefined') {
-      // autoload=false 환경에서는 kakao.maps.load가 필수입니다.
-      kakao.maps.load(() => {
+    if (container) {
+      // 내용을 다 보여준 후 지도를 천천히 불러옵니다.
+      loadKakaoMapScript(() => {
         const defaultCoords = new kakao.maps.LatLng(w.lat, w.lng);
         const options = {
           center: defaultCoords,
@@ -610,10 +629,7 @@
         setTimeout(() => {
             const geocoder = new kakao.maps.services.Geocoder();
             
-            console.log('--- 주소 검색 시도 ---');
             geocoder.addressSearch(w.address, function(result, status) {
-                console.log('상태:', status);
-                
                 if (status === kakao.maps.services.Status.OK) {
                     const coords = new kakao.maps.LatLng(result[0].y, result[0].x);
                     marker.setPosition(coords);
@@ -624,11 +640,9 @@
                         map.relayout();
                         map.setCenter(coords);
                     }, 300);
-                } else {
-                    console.warn('주소 검색 실패(기본 좌표 유지):', status);
                 }
             });
-        }, 200); // 0.2초 딜레이 추가
+        }, 200);
 
         map.addControl(new kakao.maps.MapTypeControl(), kakao.maps.ControlPosition.TOPRIGHT);
         map.addControl(new kakao.maps.ZoomControl(), kakao.maps.ControlPosition.RIGHT);
