@@ -36,34 +36,30 @@
      Image Auto-Detection
      ═══════════════════════════════════════════ */
 
-  function loadImagesFromFolder(folder, maxAttempts = 50) {
+  function loadImagesFromFolder(folder, maxAttempts = 30) {
     return new Promise(resolve => {
-        const images = [];
-        let current = 1;
-        let consecutiveFails = 0;
+        const promises = [];
 
-        function tryNext() {
-            if (current > maxAttempts || consecutiveFails >= 3) {
-                resolve(images);
-                return;
-            }
-            const img = new Image();
-            const path = `images/${folder}/${current}.jpg`;
-            img.onload = function() {
-                images.push(path);
-                consecutiveFails = 0;
-                current++;
-                tryNext();
-            };
-            img.onerror = function() {
-                consecutiveFails++;
-                current++;
-                tryNext();
-            };
-            img.src = path;
+        // 1번부터 maxAttempts까지 병렬로 확인을 시작합니다.
+        for (let i = 1; i <= maxAttempts; i++) {
+            const path = `images/${folder}/${i}.jpg`;
+            const p = new Promise(res => {
+                const img = new Image();
+                img.onload = () => res({ id: i, url: path });
+                img.onerror = () => res(null);
+                img.src = path;
+            });
+            promises.push(p);
         }
 
-        tryNext();
+        Promise.all(promises).then(results => {
+            // 성공한 이미지들만 추출하고 순서대로 정렬합니다.
+            const validImages = results
+                .filter(res => res !== null)
+                .sort((a, b) => a.id - b.id)
+                .map(res => res.url);
+            resolve(validImages);
+        });
     });
   }
 
